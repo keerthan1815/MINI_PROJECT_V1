@@ -1,0 +1,99 @@
+Time,Device,CPU,Memory,Latency,Errors,Traffic,Severity,Lead_Time,Reasons
+2026-09-13 22:03:43,Router,20.1,35.88,10.17,0,49.24,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-13 22:03:47,Router,18.88,36.24,10.09,1,50.85,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-13 22:04:06,Firewall,18.66,33.45,11.11,0,66.03,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-13 22:04:08,Firewall,18.6,48.46,11.29,0,61.76,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-13 22:04:10,Firewall,16.96,63.92,11.15,0,60.69,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-13 22:04:12,Firewall,17.7,86.17,11.95,0,61.96,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:14,Firewall,18.86,100,12.06,0,63.04,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:16,Firewall,18.18,100,11.62,0,66.05,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:18,Firewall,17.94,100,10.87,0,69.7,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:20,Firewall,19.68,100,10.47,0,65.42,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:22,Firewall,19.91,99.01,10.89,0,62.88,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:24,Firewall,21.16,98.74,11.48,1,67.74,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:26,Firewall,20.61,98.09,11.89,0,70.91,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:28,Firewall,19.88,97.12,11.85,0,69.26,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:30,Firewall,18.28,96.36,12.06,0,71.34,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:32,Switch,24.6,32.17,358.52,1,40.74,MEDIUM,Near-term (10–30 seconds),High latency — possible congestion or routing issue
+2026-09-13 22:04:32,Firewall,16.51,95.56,11.7,0,74.25,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:33,Switch,22.8,32.35,411.35,0,38.33,MEDIUM,Near-term (10–30 seconds),High latency — possible congestion or routing issue
+2026-09-13 22:04:34,Firewall,15.56,95.96,11.79,0,74.49,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:35,Switch,21.58,31.88,503.59,0,39.17,MEDIUM,Near-term (10–30 seconds),High latency — possible congestion or routing issue
+2026-09-13 22:04:36,Firewall,14.02,96.53,10.9,1,76.58,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:37,Switch,20.46,31.88,579.04,0,35.76,MEDIUM,Near-term (10–30 seconds),High latency — possible congestion or routing issue
+2026-09-13 22:04:38,Firewall,14.63,97.13,11.19,0,77.03,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:40,Firewall,16.02,97.62,11.86,0,72.56,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 22:04:42,Switch,22.08,31.47,578.8,0,35.63,MEDIUM,Near-term (10–30 seconds),High latency — possible congestion or routing issue
+2026-09-13 22:04:42,Firewall,17.21,97.19,12.31,0,75.45,MEDIUM,Near-term (10–30 seconds),High memory usage — possible memory leak
+2026-09-13 23:02:19,Router,17.42,36.04,11.45,0,49.58,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-13 23:02:20,Router,17.89,36.58,11.99,14,51.84,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:23,Router,16.72,36.49,12.42,22,52.55,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:24,Router,14.77,35.52,12.39,36,48.02,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:26,Router,15.9,35.4,13.31,47,48.45,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:28,Router,16.86,35.62,12.44,60,49.52,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:30,Router,15.33,35.24,12.6,68,52.9,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:32,Router,15.01,35.81,12.42,72,48.61,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:34,Router,15.41,36.05,12.03,77,50.49,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:36,Router,14.09,36.5,12.99,90,55.15,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:38,Router,12.18,36.55,13.33,99,53.8,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:40,Router,10.62,36.63,12.63,108,50.18,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:42,Router,11.42,36.04,12.06,112,50.46,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:44,Router,10.2,36.96,12.91,111,48.76,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:46,Router,10.89,37.38,13.84,110,50.03,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:48,Router,11.38,37.87,13.52,109,45.43,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:50,Router,9.63,38.64,13.39,109,41.91,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:52,Router,9.13,37.94,14.18,108,37.21,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-13 23:02:54,Router,9.12,38.73,14.89,107,37.81,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-14 10:44:51,Router,21.99,35.87,10.76,0,46.23,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:12,Firewall,19.61,35.76,10.4,0,50.84,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:19,Router,21.85,36.03,9.82,1,45.81,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:19,Firewall,20.15,35.79,10.48,0,56.77,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:20,Router,22.69,36.64,10.51,0,49.26,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:21,Firewall,19.1,35.79,10.48,0,56.94,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:23,Router,22.66,36.37,10.47,0,49.15,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:25,Router,20.9,37.27,10.92,0,51.24,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:27,Router,20.83,36.72,10.42,0,50.71,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:29,Router,20.8,36.77,10.78,0,51.84,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:32,Router,19.92,37.38,10.57,1,50.43,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:34,Router,18.96,37.73,10.74,0,53.58,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:36,Router,17.41,37.89,10.12,1,50.64,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:39,Firewall,20.43,32.88,12.17,0,65.71,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:41,Firewall,19.44,33.25,13.11,0,69.37,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:43,Firewall,19.39,34.05,13.5,0,70.19,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:45,Firewall,20.08,33.14,13.01,0,69.68,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:47,Firewall,19.55,33.7,12.4,1,65.82,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:49,Firewall,21.28,34.0,12.89,0,61.84,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:54,Router,20.8,35.84,10.27,0,61.89,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:13:59,Firewall,18.18,36.02,12.9,0,53.96,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:14:01,Firewall,16.83,36.39,13.09,0,49.59,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:14:05,Firewall,17.46,35.87,12.66,0,47.47,LOW,Early warning (30+ seconds),"Unusual pattern detected, but no single metric clearly stands out"
+2026-09-14 14:14:10,Firewall,18.05,35.21,12.24,7,42.38,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-14 14:14:12,Firewall,18.98,34.48,13.12,14,42.54,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-14 14:14:14,Firewall,18.28,34.79,13.41,18,38.48,MEDIUM,Near-term (10–30 seconds),High error count — possible cable/hardware/link issue
+2026-09-17 21:38:36,My PC,0.0,63.0,16.0,0,5.39,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-17 21:38:47,My PC,0.0,63.3,22.0,0,2.24,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-17 21:38:53,My PC,0.0,63.7,4.0,0,6.22,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-18 13:53:37,My PC,0.0,53.2,2.0,0,6.38,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-18 13:53:51,My PC,0.0,53.3,2.0,0,5.2,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-18 13:54:07,My PC,0.0,53.3,3.0,0,7.05,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-18 13:55:44,My PC,0.0,54.7,2.0,0,6.57,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-18 13:58:32,My PC,0.0,54.7,1.0,0,9.12,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-18 13:59:23,My PC,0.0,54.9,8.0,0,5.16,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-18 13:59:28,My PC,0.0,54.5,3.0,0,1.75,MEDIUM,Near-term — 10 to 30 seconds,Unusual metric pattern — no single cause stands out
+2026-09-20 13:59:33,Switch,11.55,0.0,42.82,0.0,-54.8,60.1,0.33,5.75,48.73,LOW,Early warning - watch the trend,NIC errors 5.8/s - switch-port / physical-layer issue
+2026-09-20 13:59:37,WiFi AP / Switch,11.27,0.0,43.56,0.0,-54.9,1.0,0.26,12.53,40.82,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 12.5/s - switch-port / physical-layer issue
+2026-09-20 13:59:39,WiFi AP / Switch,11.46,0.0,43.6,0.0,-55.2,1.0,0.24,14.08,40.99,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 14.1/s - switch-port / physical-layer issue
+2026-09-20 13:59:41,WiFi AP / Switch,11.15,0.0,42.43,0.0,-55.3,1.0,0.14,14.42,44.9,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 14.4/s - switch-port / physical-layer issue
+2026-09-20 13:59:43,WiFi AP / Switch,10.55,0.0,42.66,0.0,-54.9,1.0,0.33,14.25,44.73,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 14.2/s - switch-port / physical-layer issue
+2026-09-20 13:59:47,WiFi AP / Switch,10.85,0.0,41.23,0.0,-54.9,1.0,0.31,12.47,43.04,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 12.5/s - switch-port / physical-layer issue
+2026-09-20 13:59:51,WiFi AP / Switch,10.43,0.0,41.4,0.0,-54.6,1.0,0.29,14.42,37.82,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 14.4/s - switch-port / physical-layer issue
+2026-09-20 13:59:53,WiFi AP / Switch,10.16,0.0,40.76,0.0,-54.5,1.0,0.33,14.52,42.87,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 14.5/s - switch-port / physical-layer issue
+2026-09-20 13:59:57,WiFi AP / Switch,10.42,0.0,42.18,0.0,-54.8,1.0,0.23,12.44,41.95,MEDIUM,Near-term - minutes if trend continues,TX rate 1 Mbps - AP/switch auto-downgraded the link | NIC errors 12.4/s - switch-port / physical-layer issue
+2026-09-20 14:00:03,My Network,8.0,0.0,10.0,0.0,-67.0,1000.0,2.35,0.0,10.75,LOW,Early warning - watch the trend,"Metric pattern unusual, but no single device threshold crossed"
+2026-09-20 14:00:19,My Network,30.0,0.0,2.0,0.0,-67.0,1000.0,10.46,0.0,8.64,LOW,Early warning - watch the trend,"Metric pattern unusual, but no single device threshold crossed"
+2026-09-20 14:00:35,My Network,29.0,0.0,5.0,0.0,-67.0,1000.0,10.8,0.0,6.78,LOW,Early warning - watch the trend,"Metric pattern unusual, but no single device threshold crossed"
+2026-09-20 14:00:37,My Network,14.0,0.0,11.0,0.0,-67.0,1000.0,9.99,0.0,8.75,LOW,Early warning - watch the trend,"Metric pattern unusual, but no single device threshold crossed"
+2026-09-20 14:03:05,Router,119.0,0.0,115.0,0.0,-67.0,1000.0,41.51,0.0,7.39,MEDIUM,Near-term - minutes if trend continues,Gateway RTT 119 ms (failing >100 ms) - router overloaded or congested | Jitter 42 ms - congestion on the local hop | Internet path looks OK - the local router is the failing device
+2026-09-20 14:03:06,Router,103.0,0.0,22.0,0.0,-67.0,1000.0,48.55,0.0,4.92,MEDIUM,Near-term - minutes if trend continues,Gateway RTT 103 ms (failing >100 ms) - router overloaded or congested | Jitter 49 ms - congestion on the local hop | Internet path looks OK - the local router is the failing device
+2026-09-20 14:03:07,Router,22.0,0.0,18.0,0.0,-67.0,1000.0,47.39,0.0,7.43,LOW,Early warning - watch the trend,Jitter 47 ms - congestion on the local hop
+2026-09-20 14:03:09,Router,14.0,0.0,17.0,0.0,-67.0,1000.0,47.86,0.0,6.19,LOW,Early warning - watch the trend,Jitter 48 ms - congestion on the local hop
