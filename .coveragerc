@@ -1,0 +1,19 @@
+[run]
+source = .
+omit =
+    .venv/*
+    tests/*
+    */__pycache__/*
+    */site-packages/*
+    live_dashboard.py
+    run_project.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if __name__ == .__main__.:
+    raise NotImplementedError
+    pass
+show_missing = True
+precision = 2

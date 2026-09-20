@@ -67,23 +67,26 @@ def _build_feature_df(readings):
 
     df = pd.DataFrame(readings)
     df["router_latency_rolling5"] = (
-        df["router_latency_ms"].rolling(WINDOW, min_periods=1).mean().round(2)
+        df["router_latency"].rolling(WINDOW, min_periods=1).mean().round(2)
     )
     df["dns_latency_rolling5"] = (
-        df["dns_latency_ms"].rolling(WINDOW, min_periods=1).mean().round(2)
+        df["dns_latency"].rolling(WINDOW, min_periods=1).mean().round(2)
     )
     df["rssi_rolling5"] = (
-        df["rssi_dbm"].rolling(WINDOW, min_periods=1).mean().round(2)
+        df["rssi"].rolling(WINDOW, min_periods=1).mean().round(2)
     )
-    df["router_trend"] = (
-        df["router_latency_ms"] - df["router_latency_ms"].shift(WINDOW)
-    ).fillna(0).round(2)
-    df["dns_trend"] = (
-        df["dns_latency_ms"] - df["dns_latency_ms"].shift(WINDOW)
-    ).fillna(0).round(2)
+    df["router_latency_trend"] = (
+        df["router_latency"] - df["router_latency"].shift(WINDOW)
+    ).fillna(0.0).round(2)
+    df["dns_latency_trend"] = (
+        df["dns_latency"] - df["dns_latency"].shift(WINDOW)
+    ).fillna(0.0).round(2)
     df["rssi_trend"] = (
-        df["rssi_dbm"] - df["rssi_dbm"].shift(WINDOW)
-    ).fillna(0).round(2)
+        df["rssi"] - df["rssi"].shift(WINDOW)
+    ).fillna(0.0).round(2)
+    # Backward compatibility aliases
+    df["router_trend"] = df["router_latency_trend"]
+    df["dns_trend"] = df["dns_latency_trend"]
     return df
 
 
