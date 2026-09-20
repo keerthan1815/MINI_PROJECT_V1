@@ -1,3 +1,24 @@
+"""
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
+
+System layer: Alerting Layer (email notification of predicted device failure).
+
+Algorithms / techniques:
+    - SMTP (STARTTLS) message delivery
+    - Payload includes XGBoost prediction plus gateway/DNS/NIC symptoms
+
+Inputs:
+    - Device / path name, prediction label, RCA reason text, metric dict
+
+Outputs:
+    - Email to the configured operator inbox, or a logged send failure
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
+"""
+
 import smtplib
 from email.mime.text import MIMEText
 
@@ -6,6 +27,7 @@ APP_PASSWORD = "iaqx cbqb ulnb zhle"
 RECEIVER_EMAIL = "haddadisanad814@gmail.com"
 
 
+# Notify operators that XGBoost predicted a network-device failure, with symptoms.
 def send_alert(device, prediction, reason, metrics=None):
     metrics = metrics or {}
     try:

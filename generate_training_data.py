@@ -1,5 +1,25 @@
 """
-Build labelled training data from device-specific network simulators.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
+
+System layer: Data Collection Layer (labelled training-set generation).
+
+Algorithms / techniques:
+    - Device-specific stochastic failure simulation
+    - Pandas rolling-mean and lag-trend feature engineering
+    - Supervised labels: is_failure, failure_type, minutes_to_failure
+
+Inputs:
+    - NetworkSimulator readings for Router, Switch, and Firewall
+    - NUM_READINGS rounds of samples per device
+
+Outputs:
+    - training_data.csv with 15 XGBoost features plus labels
+    - Console class-balance and failure-type counts
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 import time
@@ -14,6 +34,8 @@ NUM_READINGS = 2500
 WINDOW = 5
 
 
+# Encode how a device has been degrading recently so XGBoost can predict
+# failure before a hard outage (Alghamdi-style predictive maintenance).
 def add_rolling_features(df):
     parts = []
     for device in df["device"].unique():
@@ -37,6 +59,7 @@ def add_rolling_features(df):
     return pd.concat(parts, ignore_index=True)
 
 
+# Build a labelled corpus of router / switch / firewall symptoms for training.
 def main():
     sims = {d: NetworkSimulator(d) for d in SIM_DEVICES}
     rows = []

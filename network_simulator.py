@@ -1,9 +1,24 @@
 """
-Simulate NETWORK SYMPTOMS of device failure — not PC CPU/RAM.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
 
-Router tab   → gateway latency, router packet loss, jitter, WiFi AP fade
-Switch tab   → NIC/switch-port errors, TX-rate collapse
-Firewall tab → DNS/WAN latency, DNS loss, traffic overload
+System layer: Data Collection Layer (labelled device-failure simulation).
+
+Algorithms / techniques:
+    - Stochastic pre-failure then hard-failure state machine
+    - Device-specific signatures (router RTT/loss, switch NIC errors, firewall DNS)
+    - Sliding windows for packet-loss % and gateway jitter (std. dev.)
+
+Inputs:
+    - device_name: Router, Switch, or Firewall
+
+Outputs:
+    - next_reading() dict: nine raw metrics, is_failure, failure_type,
+      minutes_to_failure (supervision for XGBoost classifier and regressor)
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 import random
@@ -13,6 +28,7 @@ from collections import deque
 from features import TIMEOUT_MS
 
 
+# One simulated infrastructure device whose path symptoms train XGBoost.
 class NetworkSimulator:
     """One simulated network device, observed from a client host."""
 
@@ -32,6 +48,7 @@ class NetworkSimulator:
         ],
     }
 
+    # Healthy baseline metrics as seen from a client (not PC CPU/RAM).
     def __init__(self, device_name="Router"):
         self.device_name = device_name
         self.router_latency_ms = 12.0
@@ -47,6 +64,7 @@ class NetworkSimulator:
         self.pre_failure_count = 0
         self.failure_type = None
 
+    # Pick a device-class failure (router spike, switch PHY errors, DNS outage, …).
     def _start_failure(self):
         options = self.DEVICE_FAILURES.get(
             self.device_name, ["router_latency_spike"])
@@ -54,12 +72,14 @@ class NetworkSimulator:
         self.failure_countdown = random.randint(10, 18)
         self.pre_failure_count = random.randint(12, 22)
 
+    # Packet-loss % toward the gateway or DNS — a core router/firewall failure cue.
     def _loss_pct(self, window):
         if not window:
             return 0.0
         lost = sum(1 for ok in window if not ok)
         return round(100.0 * lost / len(window), 1)
 
+    # Gateway RTT instability; high jitter implicates a congested or failing router.
     def _jitter(self):
         vals = [v for v in self._rtt_samples if v < 9000]
         if len(vals) < 2:
@@ -68,6 +88,7 @@ class NetworkSimulator:
         var = sum((v - mean) ** 2 for v in vals) / len(vals)
         return round(var ** 0.5, 2)
 
+    # Emit the next labelled sample: degrading then failed device, plus lead time.
     def next_reading(self):
         if self.failure_countdown == 0 and self.pre_failure_count == 0:
             if random.random() < 0.03:

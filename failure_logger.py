@@ -1,4 +1,24 @@
-"""Persist predicted network-device failures."""
+"""
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
+
+System layer: Persistence / Alert Archive Layer.
+
+Algorithms / techniques:
+    - CSV incident log of the nine network metrics at prediction time
+    - SQLite alert insert for dashboard analytics
+
+Inputs:
+    - Device name, raw metric dict, RCA severity, lead-time text, reason list
+
+Outputs:
+    - failure_history.csv
+    - alerts table rows (used by analytics, PDF, chat assistant)
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
+"""
 
 import csv
 import os
@@ -8,6 +28,7 @@ from database import insert_alert
 FAILURE_CSV = "failure_history.csv"
 
 
+# Archive a predicted router/switch/firewall failure with the symptoms XGBoost saw.
 def log_failure(device, metrics, severity, lead_time, reasons):
     file_exists = os.path.exists(FAILURE_CSV)
     with open(FAILURE_CSV, "a", newline="") as f:

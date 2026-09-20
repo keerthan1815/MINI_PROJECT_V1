@@ -1,5 +1,24 @@
 """
-PDF report for explainable network-device failure prediction.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
+
+System layer: Reporting Layer (explainable PDF for predicted device failures).
+
+Algorithms / techniques:
+    - ReportLab document generation
+    - Embeds XGBoost confusion matrix and SHAP/feature-importance figures
+    - SLA and alert tables from SQLite
+
+Inputs:
+    - report_type (daily / weekly / monthly)
+    - Alerts, SLA, device status, optional shap_summary_bar.png / confusion_matrix.png
+
+Outputs:
+    - Timestamped PDF describing network-device failure prediction (not PC health)
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 import os
@@ -19,6 +38,7 @@ from sla_monitor import calculate_sla
 from system_status import get_overall_status, status
 
 
+# Build an operator PDF of XGBoost predictions, SHAP context, and device SLA.
 def generate_pdf_report(report_type="daily"):
     filename = f"{report_type}_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     doc = SimpleDocTemplate(filename, pagesize=A4,
@@ -120,6 +140,7 @@ def generate_pdf_report(report_type="daily"):
     return filename
 
 
+# Style a summary table for SLA, device status, or recent failure alerts.
 def _table(data):
     t = Table(data, hAlign="LEFT")
     t.setStyle(TableStyle([

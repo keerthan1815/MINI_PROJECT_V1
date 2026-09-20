@@ -1,6 +1,29 @@
 """
-Train XGBoost classifier (device-failure vs normal) and
-regressor (minutes to failure) on 15 network-device features.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
+
+System layer: Model Training Layer + Explainability Layer.
+
+Algorithms / techniques:
+    - SMOTE minority oversampling (classifier only)
+    - XGBClassifier (device failure vs normal)
+    - XGBRegressor (minutes to failure)
+    - Stratified train/test split, ROC-AUC, confusion matrix
+    - XGBoost feature_importances_
+    - SHAP TreeExplainer beeswarm on held-out samples
+
+Inputs:
+    - training_data.csv with ALL_FEATURES and is_failure / minutes_to_failure
+
+Outputs:
+    - failure_model.pkl, regression_model.pkl
+    - confusion_matrix.png, roc_curve.png, shap_summary_bar.png,
+      shap_beeswarm.png, regression_distribution.png
+    - Console Accuracy, Precision, Recall, F1, ROC-AUC, MAE, R²
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 import joblib
@@ -31,6 +54,7 @@ except Exception:
     SHAP_AVAILABLE = False
 
 
+# Print a training-pipeline section header (data load, SMOTE, XGBoost, SHAP).
 def sep(title=""):
     print("\n" + "=" * 55)
     if title:
@@ -38,6 +62,7 @@ def sep(title=""):
         print("=" * 55)
 
 
+# Train explainable device-failure models: SMOTE → XGBoost → SHAP plots.
 def main():
     sep("STEP 1: Load network-device training data")
     df = pd.read_csv(DATA_FILE)

@@ -1,13 +1,29 @@
 """
-Map observed network symptoms to a failing device class.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
 
-A router is not failing because the laptop CPU is high.
-It is failing when the path to the gateway degrades.
+System layer: Explainability / Root-Cause Layer (rule overlay beside SHAP).
+
+Algorithms / techniques:
+    - Threshold rules on gateway RTT, loss, jitter, RSSI, TX, NIC errors, DNS, traffic
+    - Local-vs-WAN comparison to separate router failure from firewall/ISP
+    - Severity and lead-time language for operators
+
+Inputs:
+    - One metric reading (same nine symptoms the XGBoost model consumes)
+
+Outputs:
+    - severity, reasons[], lead_time, failing_device, suspected_devices[]
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 from features import TIMEOUT_MS
 
 
+# Translate observed path symptoms into a suspected failing device class and why.
 def diagnose(reading):
     r_lat = reading.get("router_latency_ms", 0) or 0
     r_loss = reading.get("router_packet_loss", 0) or 0

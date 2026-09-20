@@ -1,8 +1,27 @@
 """
-Measure live NETWORK DEVICE health from this host.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
 
-PC CPU / RAM are never collected.
-Values come from gateway ping, DNS ping, WiFi radio, and NIC counters.
+System layer: Data Collection Layer (live path metrics from this host).
+
+Algorithms / techniques:
+    - ICMP ping to default gateway (router) and DNS (firewall / ISP)
+    - ipconfig / ip route / netstat gateway and DNS discovery
+    - netsh wlan show interfaces (RSSI, TX rate)
+    - psutil NIC byte and error counter deltas (traffic, switch-port errors)
+    - Rolling mean and trend of RTT / RSSI for XGBoost feature parity
+
+Inputs:
+    - Local OS routing, DNS, Wi-Fi radio, and NIC counters
+    - Never PC CPU or RAM
+
+Outputs:
+    - detect_all(): gateway/DNS/link cache
+    - get_real_reading(): 15-feature dict matching the trained XGBoost schema
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 import math
@@ -31,6 +50,7 @@ _rssi_hist = deque(maxlen=5)
 _cache = {}
 
 
+# Discover the observer host IP so we can infer a likely default-gateway subnet.
 def _detect_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -43,6 +63,7 @@ def _detect_local_ip():
         return None
 
 
+# Find the default gateway IP — the router whose failure we predict via ICMP RTT.
 def _detect_gateway():
     sys = platform.system().lower()
     try:
@@ -83,6 +104,7 @@ def _detect_gateway():
     return None
 
 
+# List DNS servers; slow/lossy DNS implicates firewall or ISP, not the laptop.
 def _detect_dns_servers():
     servers = []
     sys = platform.system().lower()
@@ -126,6 +148,7 @@ def _detect_dns_servers():
     return servers
 
 
+# Classify Wi-Fi vs Ethernet so RSSI is only treated as an AP-failure symptom on Wi-Fi.
 def _detect_connection_type():
     try:
         stats = psutil.net_if_stats()
@@ -146,6 +169,7 @@ def _detect_connection_type():
     return "Unknown"
 
 
+# Cache gateway, DNS, and link type used for every live XGBoost inference tick.
 def detect_all():
     global _cache
     if _cache:
@@ -162,12 +186,14 @@ def detect_all():
     return _cache
 
 
+# Force rediscovery after DHCP/gateway change so predictions track the real router.
 def refresh_detection():
     global _cache
     _cache = {}
     return detect_all()
 
 
+# ICMP ping one hop (gateway or DNS) — timeout means that network device path failed.
 def _ping(host):
     if not host:
         return None, None
@@ -196,6 +222,7 @@ def _ping(host):
         return TIMEOUT_MS, 100.0
 
 
+# Read Wi-Fi RSSI/TX via netsh; collapsing radio stats indicate AP/router RF failure.
 def _measure_wifi():
     if platform.system().lower() != "windows":
         return None
@@ -234,6 +261,7 @@ def _measure_wifi():
         return None
 
 
+# NIC throughput and error rate: path load and switch-port/PHY failure cues.
 def _nic_deltas():
     """Return (traffic_kbps, nic_errors_per_sec) from counter deltas."""
     global _prev_bytes, _prev_errs, _prev_t
@@ -253,21 +281,25 @@ def _nic_deltas():
     return round(traffic, 2), round(err_rate, 2)
 
 
+# Rolling mean of a symptom window (same engineering used in training_data.csv).
 def _mean(dq, fallback):
     return round(sum(dq) / len(dq), 2) if dq else fallback
 
 
+# Short-horizon trend: rising gateway RTT or falling RSSI before hard device failure.
 def _trend(dq):
     lst = list(dq)
     return round(lst[-1] - lst[0], 2) if len(lst) >= 2 else 0.0
 
 
+# Packet-loss percentage over the recent ping window for router or DNS path.
 def _loss_window(dq):
     if not dq:
         return 0.0
     return round(100.0 * sum(1 for ok in dq if not ok) / len(dq), 1)
 
 
+# Assemble a live 15-feature sample for XGBoost from gateway, DNS, Wi-Fi, and NIC.
 def get_real_reading(device_name="My Network"):
     cfg = detect_all()
     gateway = cfg["gateway_ip"]

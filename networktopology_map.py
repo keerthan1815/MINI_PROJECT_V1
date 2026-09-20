@@ -1,10 +1,22 @@
 """
-networktopology_map.py - Interactive Plotly network topology.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
 
-Shows Router → Switch → Firewall → PC1/PC2/Server
-Color coded by live device health from system_status.py
+System layer: Dashboard Layer (visual topology of predicted device health).
 
-Called by live_dashboard.py on the Network Topology page.
+Algorithms / techniques:
+    - Plotly scatter graph of Internet → Router → Switch → Firewall / hosts
+    - Colour encoding from system_status after XGBoost + RCA updates
+
+Inputs:
+    - Live status dict (healthy / warning / failure per infrastructure node)
+
+Outputs:
+    - Plotly Figure and Streamlit widgets showing which device is predicted failing
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 import plotly.graph_objects as go
@@ -49,6 +61,7 @@ STATUS_COLOR = {
 }
 
 
+# Draw the LAN so operators see which predicted-failing device is red.
 def create_topology_figure():
     """Returns a Plotly Figure showing the live network topology."""
 
@@ -110,6 +123,7 @@ def create_topology_figure():
     return fig
 
 
+# Render topology plus a legend of current predicted device states.
 def show_topology():
     """
     Called from live_dashboard.py.

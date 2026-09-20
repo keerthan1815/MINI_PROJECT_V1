@@ -1,8 +1,26 @@
 """
-Live dashboard: predict NETWORK DEVICE failure from network symptoms.
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
 
-Simulated: Router / Switch / Firewall each emit that device's failure signs.
-Real: one "My Network" view of the actual gateway, DNS, WiFi, and NIC.
+System layer: Dashboard Layer (real-time monitoring, explanation, and alerts).
+
+Algorithms / techniques:
+    - Streamlit UI with 2 s auto-refresh
+    - joblib-loaded XGBClassifier / XGBRegressor
+    - SHAP TreeExplainer waterfall-style bar for each prediction
+    - RCA, health score, topology, email/buzzer, network-side healing, PDF
+
+Inputs:
+    - Simulated Router/Switch/Firewall readings OR live collector
+    - failure_model.pkl, regression_model.pkl
+
+Outputs:
+    - Operator views: live metrics, minutes-to-failure, SHAP drivers, alerts
+    - SQLite/CSV logs, optional email and PDF reports
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
 import os
@@ -86,16 +104,19 @@ if not st.session_state["logged_in"]:
 st_autorefresh(interval=2000, key="noc")
 
 
+# Load the trained XGBoost classifier that labels path samples as normal vs failing.
 @st.cache_resource
 def load_clf():
     return joblib.load(CLF_FILE) if os.path.exists(CLF_FILE) else None
 
 
+# Load the minutes-to-failure regressor so operators get a lead-time window.
 @st.cache_resource
 def load_reg():
     return joblib.load(REG_FILE) if os.path.exists(REG_FILE) else None
 
 
+# Build a SHAP TreeExplainer for the live XGBoost trees (why this device looks failing).
 @st.cache_resource
 def load_explainer(_clf):
     if _clf is None or not SHAP_AVAILABLE:
@@ -111,6 +132,7 @@ reg = load_reg()
 explainer = load_explainer(clf)
 
 
+# Empty per-device history used for rolling features and live charts.
 def _empty_df():
     df = pd.DataFrame(columns=["timestamp"] + RAW_FEATURES + ["status"])
     return df
@@ -125,6 +147,7 @@ if "initialized" not in st.session_state:
     st.session_state.chat_history = []
 
 
+# Compute rolling/trend features from recent ticks so live inference matches training.
 def _rolling_features(device):
     hist = st.session_state.histories.get(device, _empty_df())
     w = 5
@@ -153,6 +176,7 @@ def _rolling_features(device):
     }
 
 
+# Display gateway/DNS RTT, showing Timeout when the device path stopped answering ICMP.
 def _fmt_ms(v):
     if v is None:
         return "N/A"
@@ -161,6 +185,7 @@ def _fmt_ms(v):
     return f"{v:.0f} ms"
 
 
+# SHAP (or importance fallback) chart: which network symptoms drive this failure score.
 def _explain_chart(feat_15):
     if SHAP_AVAILABLE and explainer is not None:
         try:
@@ -197,6 +222,7 @@ def _explain_chart(feat_15):
     return None
 
 
+# Gauge of predicted minutes until the implicated router/switch/firewall fails.
 def _minutes_gauge(minutes):
     capped = min(max(float(minutes), 0), 10)
     color = "#ff0000" if capped < 2 else "#ff8800" if capped < 5 else "#00cc44"
@@ -269,6 +295,7 @@ use_real = mode.startswith("Real")
 devices = [REAL_DEVICE] if use_real else SIM_DEVICES
 
 
+# Live inference: collect symptoms, run XGBoost + SHAP, alert if a device is failing.
 def page_live_monitor():
     if clf is None:
         st.error("Train the model first: `python generate_training_data.py` then `python train_model.py`")
@@ -433,6 +460,7 @@ def page_live_monitor():
                 )
 
 
+# Colour the observed path by predicted device class (router/switch/firewall/AP).
 def page_topology():
     st.markdown("## Observed network path")
     pos = {"Internet": (0, 2), "Firewall": (2, 2), "Router": (4, 2),
@@ -477,6 +505,7 @@ def page_topology():
     st.caption("Colours come from predicted device class, not from PC health.")
 
 
+# Show failure counts, confidence trend, and training plots (SHAP / regressor).
 def page_analytics():
     st.markdown("## Model and alert analytics")
     counts = get_failure_count_by_device()

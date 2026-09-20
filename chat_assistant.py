@@ -1,4 +1,25 @@
-"""Intent-based assistant about network DEVICE failure (XGBoost + SHAP)."""
+"""
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
+
+System layer: Dashboard Layer (operator Q&A about predicted device failure).
+
+Algorithms / techniques:
+    - TF-IDF vectorization
+    - Cosine similarity intent classification
+    - Canned explanations of XGBoost, SHAP, SLA, and healing
+
+Inputs:
+    - Natural-language query from the Streamlit assistant
+    - Live device status and SLA from other modules
+
+Outputs:
+    - Markdown response about which device is failing and why (not PC health)
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
+"""
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -36,6 +57,7 @@ _vec = TfidfVectorizer()
 _X = _vec.fit_transform(TRAINING_DATA)
 
 
+# Map an operator question onto intents such as SHAP explanation or device status.
 def detect_intent(text):
     v = _vec.transform([text.lower()])
     sim = cosine_similarity(v, _X)
@@ -45,10 +67,12 @@ def detect_intent(text):
     return LABELS[idx]
 
 
+# Colour a router/switch/firewall status line for the chat reply.
 def _emoji(state):
     return {"healthy": "🟢", "warning": "🟡", "failure": "🔴"}.get(state, "⚪")
 
 
+# Answer questions about XGBoost predictions, SHAP drivers, and failing devices.
 def handle_query(user_input, context=None):
     intent = detect_intent(user_input)
     overall = get_overall_status()

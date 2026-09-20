@@ -1,4 +1,24 @@
-"""SQLite storage for network-device readings, alerts, SLA, healing."""
+"""
+Explainable AI-Based Predictive Failure Detection for
+Network Devices Using XGBoost and SHAP
+
+System layer: Persistence Layer (SQLite for readings, alerts, SLA, healing).
+
+Algorithms / techniques:
+    - SQLite schema for nine network-device metrics (legacy CPU columns dropped)
+    - JSON storage of RCA reasons and optional SHAP values
+    - SLA numerator/denominator from UP/DOWN path logs
+
+Inputs:
+    - Metric dicts, XGBoost prediction labels, confidence, health, RCA fields
+
+Outputs:
+    - network_monitor.db tables: device_readings, alerts, network_logs, healing_logs
+
+Research reference:
+    Alghamdi et al. (2025), IJISRT,
+    "Artificial Intelligence for Predictive Failures of Network Devices"
+"""
 
 import json
 import sqlite3
@@ -7,12 +27,14 @@ from datetime import datetime
 DB_FILE = "network_monitor.db"
 
 
+# Open the failure-monitoring database (shared with the Streamlit dashboard thread).
 def _conn():
     c = sqlite3.connect(DB_FILE, check_same_thread=False)
     c.row_factory = sqlite3.Row
     return c
 
 
+# Create tables for device symptoms, predicted failures, SLA samples, and healing.
 def init_db():
     con = _conn()
     cur = con.cursor()
@@ -78,6 +100,7 @@ def init_db():
     con.close()
 
 
+# Store one XGBoost inference tick: nine metrics plus predicted failing device.
 def insert_reading(device, metrics, prediction, confidence, health_score,
                    severity, failing_device=""):
     con = _conn()
@@ -105,6 +128,7 @@ def insert_reading(device, metrics, prediction, confidence, health_score,
     con.close()
 
 
+# Persist a predicted device-failure alert (severity, lead time, SHAP/RCA text).
 def insert_alert(device, severity, lead_time, reasons, shap_values=None):
     con = _conn()
     con.execute("""
@@ -120,6 +144,7 @@ def insert_alert(device, severity, lead_time, reasons, shap_values=None):
     con.close()
 
 
+# Record whether the observed path was UP or DOWN after this prediction (for SLA).
 def insert_network_log(network_status, prediction, risk, failing_device=""):
     con = _conn()
     con.execute("""
@@ -133,6 +158,7 @@ def insert_network_log(network_status, prediction, risk, failing_device=""):
     con.close()
 
 
+# Log a network-side recovery action taken after a predicted device failure.
 def insert_healing_log(device, issue, action, result):
     con = _conn()
     con.execute("""
@@ -144,6 +170,7 @@ def insert_healing_log(device, issue, action, result):
     con.close()
 
 
+# Fetch recent metric+prediction rows for analytics charts on a device or all paths.
 def get_recent_readings(device=None, limit=100):
     con = _conn()
     if device:
@@ -158,6 +185,7 @@ def get_recent_readings(device=None, limit=100):
     return [dict(r) for r in rows]
 
 
+# Return recent predicted-failure alerts for the dashboard, PDF, and assistant.
 def get_alerts(limit=50):
     con = _conn()
     rows = con.execute(
@@ -167,6 +195,7 @@ def get_alerts(limit=50):
     return [dict(r) for r in rows]
 
 
+# Count alerts per router/switch/firewall so operators see which device fails most.
 def get_failure_count_by_device():
     con = _conn()
     rows = con.execute(
@@ -176,6 +205,7 @@ def get_failure_count_by_device():
     return {r["device"]: r["cnt"] for r in rows}
 
 
+# Retrieve DNS-flush / port-flag / router-check history after predicted failures.
 def get_healing_logs(limit=50):
     con = _conn()
     rows = con.execute(
@@ -185,6 +215,7 @@ def get_healing_logs(limit=50):
     return [dict(r) for r in rows]
 
 
+# Compute path availability from logged UP vs DOWN samples after XGBoost ticks.
 def get_sla():
     con = _conn()
     total = con.execute("SELECT COUNT(*) FROM network_logs").fetchone()[0]
