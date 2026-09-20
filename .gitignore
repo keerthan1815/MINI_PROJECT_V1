@@ -1,0 +1,19 @@
+# Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary data and generated reports
+*.pdf
+*.log
+
+# System files
+.DS_Store
+Thumbs.db

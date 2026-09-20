@@ -8,6 +8,17 @@ It is failing when the path to the gateway degrades.
 from features import TIMEOUT_MS
 
 
+def _router_icmp_likely_blocked(r_lat, r_loss, d_lat, d_loss, rssi, tx, errs):
+    """
+    Detect when a router blocks ICMP pings but the network is actually healthy.
+    """
+    router_dead = r_lat >= TIMEOUT_MS or r_loss >= 90
+    dns_ok = d_lat < 200 and d_loss < 10
+    link_ok = rssi > -75 and tx > 30
+    nic_ok = errs < 3
+    return router_dead and dns_ok and link_ok and nic_ok
+
+
 def diagnose(reading):
     r_lat = reading.get("router_latency_ms", 0) or 0
     r_loss = reading.get("router_packet_loss", 0) or 0
@@ -20,12 +31,22 @@ def diagnose(reading):
     traffic = reading.get("traffic_kbps", 0) or 0
     wifi = reading.get("_wifi_available", True)
 
+    icmp_blocked = _router_icmp_likely_blocked(
+        r_lat, r_loss, d_lat, d_loss, rssi, tx, errs
+    )
+
     reasons = []
     suspected = []
 
     if r_lat >= TIMEOUT_MS:
-        reasons.append("Default gateway unreachable - router is down or not forwarding ICMP")
-        suspected.append("Router")
+        if icmp_blocked:
+            reasons.append(
+                "Gateway does not reply to ICMP — router likely blocks pings "
+                "(DNS and WiFi are healthy, so the device is NOT down)"
+            )
+        else:
+            reasons.append("Default gateway unreachable - router is down or not forwarding ICMP")
+            suspected.append("Router")
     elif r_lat > 100:
         reasons.append(f"Gateway RTT {r_lat:.0f} ms (failing >100 ms) - router overloaded or congested")
         suspected.append("Router")
@@ -34,8 +55,9 @@ def diagnose(reading):
         suspected.append("Router")
 
     if r_loss > 30:
-        reasons.append(f"High loss to router ({r_loss:.0f}%) — device dropping packets")
-        suspected.append("Router")
+        if not icmp_blocked:
+            reasons.append(f"High loss to router ({r_loss:.0f}%) — device dropping packets")
+            suspected.append("Router")
     elif r_loss > 5:
         reasons.append(f"Router packet loss {r_loss:.0f}% — unstable gateway path")
         suspected.append("Router")
@@ -86,22 +108,28 @@ def diagnose(reading):
     wan_bad = d_lat > 200 or d_loss > 10
     if local_ok and wan_bad:
         reasons.append("Local router looks healthy - problem is WAN / firewall / ISP")
-    elif (r_lat > 100 or r_loss > 30) and d_lat < 150:
+    elif (r_lat > 100 or r_loss > 30) and d_lat < 150 and not icmp_blocked:
         reasons.append("Internet path looks OK - the local router is the failing device")
 
     if not reasons:
         reasons.append("Metric pattern unusual, but no single device threshold crossed")
 
-    n = len([r for r in reasons if "looks" not in r.lower()])
-    if (r_lat >= TIMEOUT_MS or r_loss > 30 or d_lat >= TIMEOUT_MS or errs > 15):
-        severity = "CRITICAL"
-        lead_time = "Imminent - device may already be failing"
-    elif n >= 2 or r_lat > 100 or rssi < -80:
-        severity = "MEDIUM"
-        lead_time = "Near-term - minutes if trend continues"
-    else:
+    # --- Severity assignment ---
+    # If ICMP is just blocked, do NOT escalate to CRITICAL
+    if icmp_blocked:
         severity = "LOW"
-        lead_time = "Early warning - watch the trend"
+        lead_time = "Router blocks ICMP — no real failure detected"
+    else:
+        n = len([r for r in reasons if "looks" not in r.lower()])
+        if (r_lat >= TIMEOUT_MS or r_loss > 30 or d_lat >= TIMEOUT_MS or errs > 15):
+            severity = "CRITICAL"
+            lead_time = "Imminent - device may already be failing"
+        elif n >= 2 or r_lat > 100 or rssi < -80:
+            severity = "MEDIUM"
+            lead_time = "Near-term - minutes if trend continues"
+        else:
+            severity = "LOW"
+            lead_time = "Early warning - watch the trend"
 
     # Unique suspected devices, most-mentioned first
     seen = []
@@ -116,4 +144,6 @@ def diagnose(reading):
         "lead_time": lead_time,
         "failing_device": failing_device,
         "suspected_devices": seen,
+        "icmp_blocked": icmp_blocked,
     }
+

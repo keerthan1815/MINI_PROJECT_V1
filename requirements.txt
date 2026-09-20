@@ -15,6 +15,7 @@ plotly
 
 # System monitoring
 psutil
+pysnmp-lextudio
 
 # PDF reports
 reportlab

@@ -65,6 +65,23 @@ def init_db():
         action TEXT,
         result TEXT
     )""")
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS snmp_readings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        ip TEXT,
+        sys_name TEXT,
+        sys_descr TEXT,
+        uptime_sec REAL,
+        if_in_octets INTEGER,
+        if_out_octets INTEGER,
+        if_in_errors INTEGER,
+        if_out_errors INTEGER,
+        if_speed_mbps REAL,
+        cpu_usage REAL,
+        mem_usage REAL,
+        status TEXT
+    )""")
     con.commit()
     # Legacy PC-metric schema cannot store device symptoms.
     for table in ("device_readings", "network_logs"):
@@ -103,6 +120,39 @@ def insert_reading(device, metrics, prediction, confidence, health_score,
     ))
     con.commit()
     con.close()
+
+
+def insert_snmp_reading(ip, sys_name, sys_descr, uptime_sec, if_in_octets, if_out_octets,
+                        if_in_errors, if_out_errors, if_speed_mbps, cpu_usage, mem_usage, status):
+    con = _conn()
+    con.execute("""
+    INSERT INTO snmp_readings (timestamp, ip, sys_name, sys_descr, uptime_sec,
+                               if_in_octets, if_out_octets, if_in_errors, if_out_errors,
+                               if_speed_mbps, cpu_usage, mem_usage, status)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+    """, (
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        ip, sys_name, sys_descr, uptime_sec, if_in_octets, if_out_octets,
+        if_in_errors, if_out_errors, if_speed_mbps, cpu_usage, mem_usage, status
+    ))
+    con.commit()
+    con.close()
+
+
+def get_recent_snmp_readings(ip=None, limit=50):
+    con = _conn()
+    if ip:
+        rows = con.execute(
+            "SELECT * FROM snmp_readings WHERE ip=? ORDER BY timestamp DESC LIMIT ?",
+            (ip, limit)
+        ).fetchall()
+    else:
+        rows = con.execute(
+            "SELECT * FROM snmp_readings ORDER BY timestamp DESC LIMIT ?",
+            (limit,)
+        ).fetchall()
+    con.close()
+    return [dict(r) for r in rows]
 
 
 def insert_alert(device, severity, lead_time, reasons, shap_values=None):

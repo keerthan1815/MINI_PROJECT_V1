@@ -5,6 +5,19 @@ Health score from NETWORK DEVICE symptoms only.
 from features import TIMEOUT_MS
 
 
+def _router_icmp_likely_blocked(r_lat, r_loss, d_lat, d_loss, rssi, tx, errs):
+    """
+    Detect the pattern where a router blocks ICMP pings but the network is
+    actually healthy.  Signature: router timeout/100% loss, but DNS responds
+    normally, WiFi signal is fine, and NIC has no errors.
+    """
+    router_dead = r_lat >= TIMEOUT_MS or r_loss >= 90
+    dns_ok = d_lat < 200 and d_loss < 10
+    link_ok = rssi > -75 and tx > 30
+    nic_ok = errs < 3
+    return router_dead and dns_ok and link_ok and nic_ok
+
+
 def calculate_health_score(reading, failure_prob):
     score = 100.0
     r_lat = reading.get("router_latency_ms", 0)
@@ -17,13 +30,21 @@ def calculate_health_score(reading, failure_prob):
     errs = reading.get("nic_errors_per_sec", 0)
     traffic = reading.get("traffic_kbps", 0)
 
+    icmp_blocked = _router_icmp_likely_blocked(
+        r_lat, r_loss, d_lat, d_loss, rssi, tx, errs
+    )
+
+    # --- Router latency penalty ---
     if r_lat >= TIMEOUT_MS:
-        score -= 28
+        # If ICMP is just blocked, apply a small penalty instead of -28
+        score -= 5 if icmp_blocked else 28
     elif r_lat > 20:
         score -= min((r_lat - 20) * 0.25, 20)
 
+    # --- Router packet loss penalty ---
     if r_loss > 5:
-        score -= min(r_loss * 0.45, 25)
+        # If ICMP is just blocked, apply a small penalty instead of full
+        score -= 3 if icmp_blocked else min(r_loss * 0.45, 25)
 
     if d_lat >= TIMEOUT_MS:
         score -= 22
@@ -47,7 +68,8 @@ def calculate_health_score(reading, failure_prob):
     if traffic > 200:
         score -= min((traffic - 200) * 0.03, 10)
 
-    score -= failure_prob * 30
+    # Also reduce the ML failure-prob penalty when ICMP is blocked
+    score -= failure_prob * (10 if icmp_blocked else 30)
     return max(0.0, min(100.0, round(score, 1)))
 
 
