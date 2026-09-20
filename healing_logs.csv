@@ -60,3 +60,6 @@ Time,Device,Issue,Action,Result
 2026-09-19 17:36:00,My PC,Latency > 100ms,DNS flushed,Completed
 2026-09-20 13:59:33,Switch,NIC / switch-port errors,Recommend cable + switch-port inspection,Flagged for operator
 2026-09-20 14:03:05,Router,High gateway RTT / loss,Recommend router CPU/session check and reboot window,Flagged for operator
+2026-09-20 15:24:57,Router,High gateway RTT / loss,Recommend router CPU/session check and reboot window,Flagged for operator
+2026-09-20 19:14:01,Router,High gateway RTT / loss,Recommend router CPU/session check and reboot window,Flagged for operator
+2026-09-20 22:29:31,My Network,High gateway RTT / loss,Recommend router CPU/session check and reboot window,Flagged for operator

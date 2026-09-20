@@ -6,7 +6,6 @@ xgboost
 imbalanced-learn
 joblib
 shap
-sklearn
 
 # Dashboard
 streamlit

@@ -1,90 +1,144 @@
-"""
-Explainable AI-Based Predictive Failure Detection for
-Network Devices Using XGBoost and SHAP
+﻿"""
+generate_training_data.py — Generates labelled training dataset for network failure prediction.
 
-System layer: Data Collection Layer (labelled training-set generation).
-
-Algorithms / techniques:
-    - Device-specific stochastic failure simulation
-    - Pandas rolling-mean and lag-trend feature engineering
-    - Supervised labels: is_failure, failure_type, minutes_to_failure
-
-Inputs:
-    - NetworkSimulator readings for Router, Switch, and Firewall
-    - NUM_READINGS rounds of samples per device
-
-Outputs:
-    - training_data.csv with 15 XGBoost features plus labels
-    - Console class-balance and failure-type counts
-
-Research reference:
-    Alghamdi et al. (2025), IJISRT,
-    "Artificial Intelligence for Predictive Failures of Network Devices"
+Collects telemetry from NetworkSimulator across all 8 network failure scenarios:
+  - 8 failure scenarios from config.FAILURE_SCENARIOS
+  - NUM_READINGS_PER_DEVICE samples per scenario
+  - Rolling mean and lag trend features computed per scenario group
+  - Supervision labels: is_failure (binary), failure_type (multiclass), minutes_to_failure (regression)
+  - Saves to TRAINING_DATA (training_data.csv)
 """
 
 import time
-
 import pandas as pd
 
-from features import ALL_FEATURES, RAW_FEATURES, SIM_DEVICES
+from config import (
+    ALL_FEATURES,
+    FAILURE_SCENARIOS,
+    NUM_READINGS_PER_DEVICE,
+    RAW_FEATURES,
+    ROLLING_FEATURES,
+    ROLLING_WINDOW,
+    SIMULATION_SPEED,
+    TRAINING_DATA,
+    TREND_FEATURES,
+)
 from network_simulator import NetworkSimulator
 
-OUTPUT_FILE = "training_data.csv"
-NUM_READINGS = 2500
-WINDOW = 5
 
+def compute_scenario_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute rolling-window averages and short-term trends separately
+    for each scenario group so readings across scenarios are never mixed.
 
-# Encode how a device has been degrading recently so XGBoost can predict
-# failure before a hard outage (Alghamdi-style predictive maintenance).
-def add_rolling_features(df):
-    parts = []
-    for device in df["device"].unique():
-        sub = df[df["device"] == device].copy().reset_index(drop=True)
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Raw telemetry dataframe containing 'scenario' and RAW_FEATURES.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with ROLLING_FEATURES and TREND_FEATURES populated.
+    """
+    scenario_dfs = []
+
+    for scenario_name in df["scenario"].unique():
+        sub = df[df["scenario"] == scenario_name].copy().reset_index(drop=True)
+
+        # 1. Rolling window averages (window = ROLLING_WINDOW, min_periods=1)
         sub["router_latency_rolling5"] = (
-            sub["router_latency_ms"].rolling(WINDOW, min_periods=1).mean().round(2))
+            sub["router_latency"].rolling(ROLLING_WINDOW, min_periods=1).mean().round(2)
+        )
         sub["dns_latency_rolling5"] = (
-            sub["dns_latency_ms"].rolling(WINDOW, min_periods=1).mean().round(2))
+            sub["dns_latency"].rolling(ROLLING_WINDOW, min_periods=1).mean().round(2)
+        )
         sub["rssi_rolling5"] = (
-            sub["rssi_dbm"].rolling(WINDOW, min_periods=1).mean().round(2))
-        sub["router_trend"] = (
-            sub["router_latency_ms"] - sub["router_latency_ms"].shift(WINDOW)
-        ).fillna(0).round(2)
-        sub["dns_trend"] = (
-            sub["dns_latency_ms"] - sub["dns_latency_ms"].shift(WINDOW)
-        ).fillna(0).round(2)
+            sub["rssi"].rolling(ROLLING_WINDOW, min_periods=1).mean().round(2)
+        )
+
+        # 2. Short-term trends (current - value ROLLING_WINDOW ticks ago)
+        sub["router_latency_trend"] = (
+            sub["router_latency"] - sub["router_latency"].shift(ROLLING_WINDOW)
+        ).fillna(0.0).round(2)
+        sub["dns_latency_trend"] = (
+            sub["dns_latency"] - sub["dns_latency"].shift(ROLLING_WINDOW)
+        ).fillna(0.0).round(2)
         sub["rssi_trend"] = (
-            sub["rssi_dbm"] - sub["rssi_dbm"].shift(WINDOW)
-        ).fillna(0).round(2)
-        parts.append(sub)
-    return pd.concat(parts, ignore_index=True)
+            sub["rssi"] - sub["rssi"].shift(ROLLING_WINDOW)
+        ).fillna(0.0).round(2)
+
+        scenario_dfs.append(sub)
+
+    return pd.concat(scenario_dfs, ignore_index=True)
 
 
-# Build a labelled corpus of router / switch / firewall symptoms for training.
-def main():
-    sims = {d: NetworkSimulator(d) for d in SIM_DEVICES}
+def generate_dataset() -> pd.DataFrame:
+    """
+    Simulate network telemetry for all 8 scenarios and assemble the training dataset.
+
+    Returns
+    -------
+    pd.DataFrame
+        Complete engineered training dataset.
+    """
+    scenarios = list(FAILURE_SCENARIOS.keys())
+    total_expected = len(scenarios) * NUM_READINGS_PER_DEVICE
+    print(f"Generating training data across {len(scenarios)} scenarios...")
+    print(f"Readings per scenario: {NUM_READINGS_PER_DEVICE}")
+    print(f"Total expected rows  : {total_expected}")
+
+    # One NetworkSimulator instance per scenario
+    simulators = {s: NetworkSimulator(scenario_name=s) for s in scenarios}
     rows = []
-    print(f"Collecting {NUM_READINGS} rounds x {len(SIM_DEVICES)} devices...")
-    for i in range(NUM_READINGS):
-        for d in SIM_DEVICES:
-            rows.append(sims[d].next_reading())
-        if i % 500 == 0:
-            print(f"  {i}/{NUM_READINGS}")
-        time.sleep(0.002)
 
-    df = add_rolling_features(pd.DataFrame(rows))
-    cols = (
-        ["timestamp", "device"]
+    for i in range(NUM_READINGS_PER_DEVICE):
+        for s in scenarios:
+            reading = simulators[s].next_reading()
+            rows.append(reading)
+
+        if (i + 1) % 500 == 0 or (i + 1) == NUM_READINGS_PER_DEVICE:
+            collected_so_far = (i + 1) * len(scenarios)
+            print(f"  Progress: tick {i + 1}/{NUM_READINGS_PER_DEVICE} ({collected_so_far}/{total_expected} rows)")
+
+    raw_df = pd.DataFrame(rows)
+
+    # Compute rolling and trend features per scenario group
+    featured_df = compute_scenario_features(raw_df)
+
+    # Ensure columns match target schema
+    output_columns = (
+        ["timestamp", "scenario"]
         + RAW_FEATURES
-        + [c for c in ALL_FEATURES if c not in RAW_FEATURES]
+        + ROLLING_FEATURES
+        + TREND_FEATURES
         + ["is_failure", "failure_type", "minutes_to_failure"]
     )
-    df[cols].to_csv(OUTPUT_FILE, index=False)
-    print(f"Saved {len(df)} rows -> {OUTPUT_FILE}")
-    print("Normal :", int((df["is_failure"] == 0).sum()))
-    print("Failure:", int((df["is_failure"] == 1).sum()))
-    print(df["failure_type"].value_counts().to_dict())
-    print(df["device"].value_counts().to_dict())
+
+    final_df = featured_df[output_columns]
+
+    # Save to TRAINING_DATA
+    final_df.to_csv(TRAINING_DATA, index=False)
+
+    # Print summary statistics
+    total_rows = len(final_df)
+    normal_count = int((final_df["is_failure"] == 0).sum())
+    failure_count = int((final_df["is_failure"] == 1).sum())
+
+    print("\n" + "=" * 60)
+    print("TRAINING DATASET GENERATION SUMMARY")
+    print("=" * 60)
+    print(f"Total rows collected : {total_rows}")
+    print(f"Normal readings count: {normal_count} ({normal_count / total_rows * 100:.1f}%)")
+    print(f"Failure readings count: {failure_count} ({failure_count / total_rows * 100:.1f}%)")
+    print("\nCount per failure_type:")
+    for ft, count in final_df["failure_type"].value_counts().items():
+        print(f"  {ft:<22}: {count:>5}")
+    print(f"\nFile saved to path   : {TRAINING_DATA}")
+    print("=" * 60)
+
+    return final_df
 
 
 if __name__ == "__main__":
-    main()
+    generate_dataset()

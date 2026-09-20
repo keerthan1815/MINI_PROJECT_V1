@@ -24,39 +24,17 @@ Research reference:
     "Artificial Intelligence for Predictive Failures of Network Devices"
 """
 
-# Nine raw path symptoms that indicate router / switch / AP / firewall stress.
-RAW_FEATURES = [
-    "router_latency_ms",
-    "router_packet_loss",
-    "dns_latency_ms",
-    "dns_packet_loss",
-    "rssi_dbm",
-    "tx_rate_mbps",
-    "jitter_ms",
-    "nic_errors_per_sec",
-    "traffic_kbps",
-]
+from config import (
+    ALL_FEATURES,
+    RAW_FEATURES,
+    ROLLING_FEATURES,
+    TREND_FEATURES,
+    ROUTER_LATENCY_DEAD,
+)
 
-# Short-horizon averages so XGBoost can see a degrading device, not a single spike.
-ROLLING_FEATURES = [
-    "router_latency_rolling5",
-    "dns_latency_rolling5",
-    "rssi_rolling5",
-]
-
-# Delta over the same window — early warning that a device is trending toward failure.
-TREND_FEATURES = [
-    "router_trend",
-    "dns_trend",
-    "rssi_trend",
-]
-
-ALL_FEATURES = RAW_FEATURES + ROLLING_FEATURES + TREND_FEATURES  # 15
-
+TIMEOUT_MS = ROUTER_LATENCY_DEAD
 SIM_DEVICES = ["Router", "Switch", "Firewall"]
 REAL_DEVICE = "My Network"
-
-TIMEOUT_MS = 9999.0
 
 # Paper-facing mapping: which network device a SHAP-ranked metric implicates.
 METRIC_TO_DEVICE = {

@@ -232,15 +232,12 @@ MiniProject_V1/
 │
 ├── network_simulator.py       # Device-specific failure signatures (not PC health)
 ├── real_network_collector.py  # Live gateway/DNS/Wi-Fi/NIC measurements
-├── network_detector.py        # Wi-Fi vs LAN detection helper
 │
 ├── root_cause.py              # Rule overlay: symptoms → failing device class
 ├── health_scorer.py           # Health score from network symptoms + failure probability
 ├── system_status.py           # Live healthy/degraded/down state per device
-├── networktopology_map.py     # Plotly topology coloured by device health
 │
 ├── database.py                # SQLite: readings, alerts, SLA, healing logs
-├── logger.py                  # CSV + SQLite logger for path status
 ├── failure_logger.py          # Persist predicted device failures
 ├── sla_monitor.py             # SLA = uptime readings / total readings
 │
