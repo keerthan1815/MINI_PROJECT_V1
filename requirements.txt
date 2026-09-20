@@ -1,0 +1,27 @@
+# Core AI
+pandas
+numpy
+scikit-learn
+xgboost
+imbalanced-learn
+joblib
+shap
+sklearn
+
+# Dashboard
+streamlit
+streamlit-autorefresh
+plotly
+
+# System monitoring
+psutil
+
+# PDF reports
+reportlab
+
+# Visualization
+matplotlib
+
+# Voice AI (optional)
+# SpeechRecognition==3.10.4
+# pyttsx3==2.90
